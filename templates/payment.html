@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Complete Your Payment</h2>
+<p>Your seats are reserved for <span id="timer">{{ time_left }}</span> seconds.</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Pay Now</button>
+</form>
+<script>
+    var seconds = {{ time_left }};
+function updateTimer() {
+    if (seconds > 0) {
+        seconds--;
+        document.getElementById('timer').innerText = seconds;
+        setTimeout(updateTimer, 1000);
+    }
+}
+updateTimer();
+</script>
+{% endblock %}

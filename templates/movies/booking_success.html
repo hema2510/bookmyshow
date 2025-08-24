@@ -1,0 +1,14 @@
+{% extends "users/basic.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Booking Successful!</h2>
+    <p>Thank you {{ booking.name }}. A confirmation email has been sent to {{ booking.email }}.</p>
+    <ul>
+        <li>Movie: {{ booking.movie }}</li>
+        <li>Theater: {{ booking.theater }}</li>
+        <li>Show Time: {{ booking.show_time }}</li>
+        <li>Seats: {{ booking.seats }}</li>
+    </ul>
+    <a href="/movies/" class="btn btn-primary">Back to Movies</a>
+</div>
+{% endblock %}

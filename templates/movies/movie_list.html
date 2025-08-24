@@ -1,0 +1,494 @@
+{% extends "users/basic.html" %}
+{% block content %}
+<style>
+:root {
+    --primary: #e50914;
+    --primary-dark: #b8070f;
+    --secondary: #f5f5f1;
+    --dark: #141414;
+    --dark-light: #1f1f1f;
+}
+body {
+    background: linear-gradient(135deg, var(--dark) 0%, #000 100%);
+    color: var(--secondary);
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+.movie-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 38vh;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+.movie-hero h1 {
+    font-size: 2.7rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    background: linear-gradient(90deg, #e50914, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+.movie-hero-desc {
+    font-size: 1.18rem;
+    color: #ccc;
+    margin-bottom: 2rem;
+    max-width: 550px;
+}
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.2rem;
+}
+.filter-bar select, .filter-bar input[type="text"] {
+    padding: 0.5rem 1rem;
+    border-radius: 22px;
+    border: 1.5px solid #e5091440;
+    background: #181818;
+    color: #fff;
+    font-weight: 600;
+    min-width: 140px;
+    margin-bottom: 0;
+}
+.filter-bar button {
+    border-radius: 22px;
+    font-weight: 600;
+    min-width: 110px;
+    background: linear-gradient(90deg,#e50914,#b8070f);
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+}
+.filter-bar button:hover { background: #b8070f; }
+.card-deck {
+    display: flex; flex-wrap: wrap; gap: 1.8rem;
+}
+.showcase-card {
+    background: var(--dark-light);
+    border-radius: 16px; box-shadow: 0 2px 13px #0003;
+    overflow: hidden; flex: 1 1 280px; min-width: 240px; cursor: pointer;
+    transition: box-shadow .2s, transform .14s;
+    position: relative;
+    display: flex; flex-direction: column; height: 100%;
+}
+.showcase-card:hover {
+    box-shadow: 0 8px 36px #e5091433;
+    transform: translateY(-8px) scale(1.01);
+}
+.showcase-card img {
+    width: 100%; height: 220px; object-fit: cover;
+    display: block;
+}
+.showcase-info {
+    padding: 1.1rem 1.1rem 1rem 1.1rem;
+    flex: 1 1 auto;
+}
+.showcase-name {
+    color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 0.4rem;
+}
+.showcase-desc {
+    color: #bbb; font-size: 0.98rem; margin-bottom: 0.7rem;
+}
+.showcase-rating {
+    position: absolute; top: 16px; right: 16px;
+    background: linear-gradient(135deg, #ffd700, #f59e0b 80%);
+    color: #000; padding: 4px 13px; border-radius: 14px;
+    font-weight: 700; font-size: 1rem; z-index: 3;
+}
+.badge-genre {
+    background: #232946;
+    color: #F4D35E;
+    font-weight: 600;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 4px 10px;
+    font-size: 0.9rem;
+}
+.badge-language {
+    background: #1ba098;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 4px 10px;
+    font-size: 0.9rem;
+}
+.showcase-action {
+    background: var(--primary); color: #fff; border: none;
+    border-radius: 18px; padding: 7px 20px;
+    font-weight: 600; transition: background .17s;
+    margin-top: 0.5rem;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+.showcase-action:hover { 
+    background: var(--primary-dark);
+    color: #fff;
+    text-decoration: none;
+}
+.table-sm th, .table-sm td {
+    color: #eee;
+    border-color: #222;
+}
+.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+.back-btn:hover {
+    background: var(--primary-dark);
+    color: #fff;
+    text-decoration: none;
+}
+.no-results {
+    text-align: center;
+    color: #ccc;
+    font-size: 1.2rem;
+    margin-top: 3rem;
+}
+@media (max-width: 800px) {
+    .card-deck { gap: 1rem; }
+    .showcase-card img { height: 160px; }
+}
+@media (max-width: 600px) {
+    .movie-hero h1 { font-size: 2rem; }
+    .movie-hero-desc { font-size: 1rem; }
+    .card-deck { flex-direction: column; }
+    .filter-bar { flex-direction: column; }
+    .filter-bar > * { width: 100%; max-width: 300px; }
+}
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<!-- Back to Home Button -->
+<a href="/" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+</a>
+
+<div class="container py-4">
+    <!-- HERO & FILTERS Section -->
+    <section class="movie-hero">
+        <h1>
+            Explore Latest & Trending Movies
+        </h1>
+        <div class="movie-hero-desc">
+            Browse, search, and book your favourite movies.<br>
+            Now showing blockbusters, cult classics, and local gems!
+        </div>
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <select id="genreFilter">
+                <option value="">All Genres</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Action">Action</option>
+                <option value="Romance">Romance</option>
+                <option value="Drama">Drama</option>
+            </select>
+            <select id="languageFilter">
+                <option value="">All Languages</option>
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Telugu">Telugu</option>
+            </select>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by name, genre..." style="max-width:210px;">
+            <button type="button" id="clearFilters" class="btn btn-danger">Clear Filters</button>
+        </div>
+    </section>
+
+    <!-- Movie Cards List -->
+    <div class="card-deck" id="movieList">
+        <!-- Movies will be populated by JavaScript -->
+    </div>
+    
+    <!-- No Results Message -->
+    <div class="no-results" id="noResults" style="display: none;">
+        <i class="fas fa-film" style="font-size: 3rem; color: #555; margin-bottom: 1rem;"></i>
+        <p>No movies found matching your criteria.</p>
+        <p>Try adjusting your filters or search term.</p>
+    </div>
+</div>
+
+<script>
+// Same movie data as home page with additional properties - Using reliable placeholder images
+const MOVIES = [
+    {
+        id: 1, 
+        name: 'Echoes: A Sci-Fi Spectacle', 
+        genre: 'Sci-Fi', 
+        language: 'English',
+        desc: 'A mind-bending journey through space and time.', 
+        rating: 9.1, 
+        img: 'https://picsum.photos/400/600?random=1&blur=1',
+        cast: 'Ryan Gosling, Emma Stone, Oscar Isaac',
+        theaters: [
+            { name: 'PVR Cinemas', time: '2:30 PM', location: 'Mall Road' },
+            { name: 'INOX Theater', time: '6:00 PM', location: 'City Center' },
+            { name: 'Multiplex Plus', time: '9:30 PM', location: 'Downtown' }
+        ]
+    },
+    {
+        id: 2, 
+        name: 'The Last Laugh', 
+        genre: 'Comedy', 
+        language: 'English',
+        desc: 'A hilarious adventure with a twist.', 
+        rating: 8.7, 
+        img: 'https://picsum.photos/400/600?random=2',
+        cast: 'Chris Hemsworth, Tina Fey, Kevin Hart',
+        theaters: [
+            { name: 'Fun Cinema', time: '3:00 PM', location: 'Park Street' },
+            { name: 'Galaxy Theater', time: '7:15 PM', location: 'North Plaza' }
+        ]
+    },
+    {
+        id: 3, 
+        name: 'Midnight Heist', 
+        genre: 'Thriller', 
+        language: 'English',
+        desc: 'A daring robbery unfolds under the city lights.', 
+        rating: 9.0, 
+        img: 'https://picsum.photos/400/600?random=3&grayscale',
+        cast: 'Tom Hardy, Charlize Theron, Michael Fassbender',
+        theaters: [
+            { name: 'Metro Cinema', time: '4:45 PM', location: 'Central Square' },
+            { name: 'Royal Theater', time: '8:30 PM', location: 'Heritage District' },
+            { name: 'Star Complex', time: '10:45 PM', location: 'Business Bay' }
+        ]
+    },
+    {
+        id: 4, 
+        name: 'Legends Reborn', 
+        genre: 'Action', 
+        language: 'Hindi',
+        desc: 'Heroes rise again to defend the realm.', 
+        rating: 8.9, 
+        img: 'https://picsum.photos/400/600?random=4',
+        cast: 'Hrithik Roshan, Deepika Padukone, Ranveer Singh',
+        theaters: [
+            { name: 'Bollywood Cinema', time: '1:00 PM', location: 'Film City' },
+            { name: 'Masala Theater', time: '5:30 PM', location: 'Old Town' },
+            { name: 'Epic Multiplex', time: '9:00 PM', location: 'New Delhi Road' }
+        ]
+    },
+    {
+        id: 5, 
+        name: 'Stardust Dreams', 
+        genre: 'Romance', 
+        language: 'Hindi',
+        desc: 'Love stories written in the stars.', 
+        rating: 8.8, 
+        img: 'https://picsum.photos/400/600?random=5&blur=1',
+        cast: 'Shah Rukh Khan, Priyanka Chopra, Ranbir Kapoor',
+        theaters: [
+            { name: 'Romance Cinema', time: '2:15 PM', location: 'Love Lane' },
+            { name: 'Dream Theater', time: '6:45 PM', location: 'Sunset Boulevard' }
+        ]
+    },
+    {
+        id: 6, 
+        name: 'Into the Night', 
+        genre: 'Drama', 
+        language: 'Tamil',
+        desc: 'A mystery unravels as darkness falls.', 
+        rating: 8.6, 
+        img: 'https://picsum.photos/400/600?random=6',
+        cast: 'Vijay, Nayanthara, Suriya',
+        theaters: [
+            { name: 'Tamil Cinema Hall', time: '3:30 PM', location: 'South District' },
+            { name: 'Regional Theater', time: '7:00 PM', location: 'Cultural Center' },
+            { name: 'Art House Cinema', time: '10:00 PM', location: 'Artist Quarter' }
+        ]
+    }
+];
+
+let filteredMovies = [...MOVIES];
+
+// Render movies function with image error handling
+function renderMovies(movies) {
+    const movieList = document.getElementById('movieList');
+    const noResults = document.getElementById('noResults');
+    
+    if (movies.length === 0) {
+        movieList.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+    }
+    
+    noResults.style.display = 'none';
+    movieList.innerHTML = movies.map(movie => `
+        <div class="showcase-card movie-card" data-genre="${movie.genre}" data-language="${movie.language}">
+            <img src="${movie.img}" alt="${movie.name}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x600/333/fff?text=${encodeURIComponent(movie.name)}';">
+            <span class="showcase-rating"><i class="fas fa-star"></i> ${movie.rating}</span>
+            <div class="showcase-info">
+                <div class="showcase-name">${movie.name}</div>
+                <div class="showcase-desc">${movie.desc}</div>
+                <div style="margin-bottom: 0.8rem;">
+                    <span class="badge-genre">${movie.genre}</span>
+                    <span class="badge-language">${movie.language}</span>
+                </div>
+                <div style="margin-bottom: 0.8rem;">
+                    <small class="text-muted"><i class="fas fa-users"></i> Cast: ${movie.cast}</small>
+                </div>
+                <button class="showcase-action w-100" onclick="showTheaters(${movie.id})">
+                    <i class="fas fa-ticket-alt"></i> Book Tickets
+                </button>
+                
+                <!-- Show Timing Table -->
+                <div class="mt-3" id="theaters-${movie.id}" style="display: none;">
+                    <h6 style="color:#ff6b6b;"><i class="fas fa-map-marker-alt"></i> Available Theaters:</h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Theater</th>
+                                <th>Show Time</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${movie.theaters.map(theater => `
+                                <tr>
+                                    <td>${theater.name}</td>
+                                    <td>${theater.time}</td>
+                                    <td>${theater.location}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="bookShow('${movie.name}', '${theater.name}', '${theater.time}')">
+                                            Book
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <button class="btn btn-sm btn-secondary mt-2" onclick="hideTheaters(${movie.id})">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Show/Hide theaters function
+function showTheaters(movieId) {
+    const theatersDiv = document.getElementById(`theaters-${movieId}`);
+    if (theatersDiv.style.display === 'none') {
+        theatersDiv.style.display = 'block';
+        theatersDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        theatersDiv.style.display = 'none';
+    }
+}
+
+function hideTheaters(movieId) {
+    document.getElementById(`theaters-${movieId}`).style.display = 'none';
+}
+
+// Book show function
+function bookShow(movieName, theaterName, showTime) {
+    // Redirect to the Django booking form with movie, theater, and show time as query params
+    window.location.href = `/movies/book/?movie=${encodeURIComponent(movieName)}&theater=${encodeURIComponent(theaterName)}&show_time=${encodeURIComponent(showTime)}`;
+}
+
+// Filter functions
+function applyFilters() {
+    const genreFilter = document.getElementById('genreFilter').value;
+    const languageFilter = document.getElementById('languageFilter').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    filteredMovies = MOVIES.filter(movie => {
+        const matchesGenre = !genreFilter || movie.genre === genreFilter;
+        const matchesLanguage = !languageFilter || movie.language === languageFilter;
+        const matchesSearch = !searchTerm || 
+            movie.name.toLowerCase().includes(searchTerm) ||
+            movie.genre.toLowerCase().includes(searchTerm) ||
+            movie.desc.toLowerCase().includes(searchTerm) ||
+            movie.cast.toLowerCase().includes(searchTerm);
+            
+        return matchesGenre && matchesLanguage && matchesSearch;
+    });
+    
+    renderMovies(filteredMovies);
+}
+
+// Clear filters
+function clearFilters() {
+    document.getElementById('genreFilter').value = '';
+    document.getElementById('languageFilter').value = '';
+    document.getElementById('searchInput').value = '';
+    filteredMovies = [...MOVIES];
+    renderMovies(filteredMovies);
+}
+
+// Event listeners
+document.getElementById('genreFilter').addEventListener('change', applyFilters);
+document.getElementById('languageFilter').addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('clearFilters').addEventListener('click', clearFilters);
+
+// Real-time search with debounce
+let searchTimeout;
+document.getElementById('searchInput').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(applyFilters, 300);
+});
+
+// Initial render
+renderMovies(MOVIES);
+
+// Handle URL parameters for direct movie access (if coming from home page)
+window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieName = urlParams.get('movie');
+    
+    if (movieName) {
+        const movie = MOVIES.find(m => m.name.toLowerCase() === movieName.toLowerCase());
+        if (movie) {
+            // Scroll to movie and highlight it
+            setTimeout(() => {
+                const movieCards = document.querySelectorAll('.showcase-card');
+                movieCards.forEach(card => {
+                    const cardTitle = card.querySelector('.showcase-name').textContent;
+                    if (cardTitle.toLowerCase() === movieName.toLowerCase()) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.boxShadow = '0 0 0 4px var(--primary)';
+                        setTimeout(() => {
+                            card.style.boxShadow = '';
+                        }, 2000);
+                        // Auto-show theaters for this movie
+                        showTheaters(movie.id);
+                    }
+                });
+            }, 100);
+        }
+    }
+});
+</script>
+
+{% endblock %}

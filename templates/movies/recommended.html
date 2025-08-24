@@ -1,0 +1,8 @@
+<h2>Recommended Movies For You</h2>
+<ul>
+  {% for movie in recommended_movies %}
+    <li>{{ movie.name }} (Rating: {{ movie.rating }})</li>
+  {% empty %}
+    <li>No recommendations yet.</li>
+  {% endfor %}
+</ul>
